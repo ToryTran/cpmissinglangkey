@@ -43,8 +43,11 @@ $langPaths = getcwd().'/'.rtrim($argv[1], '/');
 $prefixText = "NeedTrans-";
 
 // list all lang folder
-$langDirectorys = array_diff(scandir($langPaths), ['.', '..']);
+$langDirectorys = array_diff(scandir($langPaths), ['.', '..', '.DS_Store']);
 
+var_dump($langDirectorys);
+
+//die();
 // data output
 $data = [];
 
@@ -71,16 +74,18 @@ foreach ($data as $k => $file) {
             $misskey = myArrayDiff(array_keys($file[$code2]), array_keys($file[$code]), $misskeys);
             // copy missing data
             foreach ($misskey as $key) {
-                $dataMerge = $data[$k][$code2][$key];
+                if (!empty($data[$k][$code2][$key])) {
+                    $dataMerge = $data[$k][$code2][$key];
 
-                if (is_array($dataMerge)) {
-                    foreach ($dataMerge as $i => $dataNeedMerge) {
-                        $dataMerge[$i] = $prefixText.$dataNeedMerge;
+                    if (is_array($dataMerge)) {
+                        foreach ($dataMerge as $i => $dataNeedMerge) {
+                            $dataMerge[$i] = $prefixText.$dataNeedMerge;
+                        }
+                    } else {
+                        $dataMerge =  $prefixText.$dataMerge;
                     }
-                } else {
-                    $dataMerge =  $prefixText.$dataMerge;
+                    $data[$k][$code] += [$key => $dataMerge];
                 }
-                $data[$k][$code] += [$key => $dataMerge];
             }
         }
     }
